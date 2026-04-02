@@ -1,0 +1,8 @@
+{
+    "python.analysis.extraPaths": [
+        "./src/multimodal",
+        "./src/rag",
+        "./src/llm",
+        "./src/api"
+    ]
+}
