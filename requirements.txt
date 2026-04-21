@@ -32,7 +32,7 @@ rank-bm25==0.2.2               # Recherche BM25 hybride
 
 
 # ── Recherche web ─────────────────────────────────────────────────────────────
-ddgs==6.3.7                    # DuckDuckGo Search (nouveau nom, remplace duckduckgo-search)
+ddgs==9.14.1                    # DuckDuckGo Search (nouveau nom, remplace duckduckgo-search)
 duckduckgo-search==6.3.7       # Alias pour compatibilité (même package)
 requests==2.32.3               # Requêtes HTTP (scraping articles)
 beautifulsoup4==4.12.3         # Parsing HTML (scraping)
