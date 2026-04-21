@@ -39,7 +39,7 @@ beautifulsoup4==4.12.3         # Parsing HTML (scraping)
 
 
 # ── NLP — Traitement du langage ───────────────────────────────────────────────
-lingua-language-detector==2.0.2   # Détection de langue (fr/ar/en) — très précis
+lingua-language-detector==2.2.0   # Détection de langue (fr/ar/en) — très précis
 deep-translator==1.11.4           # Traduction Google (fr ↔ ar ↔ en)
 spacy==3.7.4                      # Lemmatisation française pour NLP Dashboard
                                   # ⚠ Après install : python -m spacy download fr_core_news_sm
