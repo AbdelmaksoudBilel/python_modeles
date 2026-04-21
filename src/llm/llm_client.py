@@ -288,7 +288,7 @@ if __name__ == "__main__":
     builder = PromptBuilder()
 
     messages = builder.build(
-        question = "Comment gérer les crises de mon enfant le matin ?",
+        question = "Comment gérer les crises de mon enfant le nuit ?",
 
         profile_context = (
             "Profil de l'enfant : garçon de 5 ans.\n"

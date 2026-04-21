@@ -79,8 +79,9 @@ from services.rm_service     import RMService
 from src.api.nlp_dashboard import router as nlp_router
 
 
-# INITIALISATION
+PR_QN1_A_INDEX = 10
 
+# INITIALISATION
 app = FastAPI(
     title       = "Assistant Intelligent TSA & RM",
     description = "API de conseils personnalisés pour parents d'enfants TSA/RM",
@@ -190,20 +191,43 @@ async def predict(
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"JSON invalide : {e}")
 
-    # ── Prédiction TSA ────────────────────────────────────────────────────
+    # ── Étape 1 : Prédiction TSA ─────────────────────────────────────────────
     prob_ml  = predict_ml(feats_tsa)
-
+ 
     img_bytes = await image.read()
     pil_image = Image.open(io.BytesIO(img_bytes)).convert("RGB")
     prob_cnn  = predict_cnn(pil_image)
-
+ 
     prob_tsa     = fusion_prediction(prob_ml, prob_cnn)
     tsa_detected = prob_tsa >= 0.5
+ 
+    logger.info(
+        f"TSA : prob_ml={prob_ml:.3f} | prob_cnn={prob_cnn:.3f} | "
+        f"prob_tsa={prob_tsa:.3f} | tsa_detected={tsa_detected}"
+    )
+ 
+    # ── Étape 2 : INJECTION AUTOMATIQUE DE PR_QN1_A ─────────────────────────
+    # La valeur est basée sur le résultat TSA détecté :
+    #   tsa_detected=True  → PR_QN1_A = 2 (Oui, diagnostiqué)
+    #   tsa_detected=False → PR_QN1_A = 0 (Non)
+    # Cela signifie que le modèle RM reçoit une information cohérente
+    # avec le résultat TSA — pas ce que le parent a saisi (qui était 0 par défaut)
+ 
+    pr_qn1a_value = 2 if tsa_detected else 0
+ 
+    if len(feats_rm) > PR_QN1_A_INDEX:
+        feats_rm[PR_QN1_A_INDEX] = pr_qn1a_value
+        logger.info(f"PR_QN1_A injecté : {pr_qn1a_value} (tsa_detected={tsa_detected})")
+    else:
+        logger.warning(
+            f"features_rm trop court ({len(feats_rm)} éléments) — "
+            f"PR_QN1_A à l'index {PR_QN1_A_INDEX} non trouvé"
+        )
 
     # ── Prédiction RM ─────────────────────────────────────────────────────
     rm_result      = rm_service.predict(feats_rm)
     score_anomalie = rm_result["score_anomalie"]
-    rm_detected    = not rm_result["is_anomaly"]   # is_anomaly=False → RM typique
+    rm_detected    = not rm_result["is_anomaly"]
 
     # ── Fusion TSA + RM → prédiction finale ──────────────────────────────
     if tsa_detected and rm_detected:
